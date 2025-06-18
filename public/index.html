@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Miniblog</title>
+  <link rel="stylesheet" href="index.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" />
+</head>
+
+<body>
+  <div class="animated-bg">
+    <svg class="bg-shape shape1" width="300" height="300">
+      <circle cx="150" cy="150" r="120" fill="#ede9fe" opacity="0.5" />
+    </svg>
+    <svg class="bg-shape shape2" width="200" height="200">
+      <circle cx="100" cy="100" r="80" fill="#a78bfa" opacity="0.2" />
+    </svg>
+  </div>
+
+  <header class="main-header">
+    <nav class="logo-nav">
+      <div class="nav-left">
+        <a href="index.html" class="logo-link">
+          <img src="Preview.png" alt="Mini Blog Logo" class="logo-img" />
+          <span class="logo-text">Miniblog</span>
+        </a>
+      </div>
+      <div class="nav-right">
+        <a href="login.html" class="login-btn">Login</a>
+        <a href="signup.html" class="signup-btn">Sign Up</a>
+      </div>
+    </nav>
+    <!-- The rest of your hero content remains unchanged -->
+
+
+
+    <div class="hero-center">
+      <h1 class="hero-title">
+        Your own <span class="highlight animated-headline" id="animated-headline">blogging</span><br />platform.
+      </h1>
+      <p class="hero-desc">
+        This is your space to think out loud, to share what matters, and to write without filters. Whether it's one word
+        or a thousand, your story starts right here.
+      </p>
+      <form class="search-bar" onsubmit="return false;">
+        <input type="text" placeholder="Search for blogs" class="search-input" aria-label="Search for blogs"
+          id="search-input" />
+        <button class="search-btn" aria-label="Search">Search</button>
+      </form>
+      <div class="search-tip">
+        💡 Try searching for <span class="tip-keyword">'Startup'</span> or <span class="tip-keyword">'Lifestyle'</span>!
+      </div>
+      <div id="search-feedback" class="search-feedback" aria-live="polite"></div>
+      <div class="categories-bar" role="tablist" aria-label="Blog categories">
+        <button class="cat-btn active" role="tab" aria-selected="true">All</button>
+        <button class="cat-btn" role="tab">Technology</button>
+        <button class="cat-btn" role="tab">Startup</button>
+        <button class="cat-btn" role="tab">Lifestyle</button>
+        <button class="cat-btn" role="tab">Finance</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="blog-grid" class="blog-grid" style="display: none"></section>
+    <section class="newsletter-section">
+      <h2 class="newsletter-title">Never Miss a Blog!</h2>
+      <p class="newsletter-desc">Subscribe to get the latest blog, new tech, and exclusive news.</p>
+      <form class="newsletter-form" onsubmit="return false;">
+        <input type="email" class="newsletter-input" placeholder="Enter your email id" required />
+        <button type="submit" class="newsletter-btn">Subscribe</button>
+      </form>
+    </section>
+    <div class="below-blog-text">
+      <p>Thank you for visiting Miniblog! Stay tuned for more exciting content, tips, and community stories. Happy
+        blogging!</p>
+    </div>
+  </main>
+
+  <!-- Floating Auth Buttons -->
+  <div class="floating-auth">
+    <a href="login.html" class="floating-auth-btn floating-login">
+      <i class="fas fa-sign-in-alt"></i>
+      Login
+    </a>
+    <a href="signup.html" class="floating-auth-btn floating-signup">
+      <i class="fas fa-user-plus"></i>
+      Sign Up
+    </a>
+  </div>
+
+  <footer class="footer-copyright">
+    <p>&copy; 2025 Miniblog. All rights reserved.</p>
+  </footer>
+
+  <script src="script.js"></script>
+  <!-- Add Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</body>
+
+</html>

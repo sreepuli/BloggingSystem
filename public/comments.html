@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Comments - Miniblog</title>
+    <link rel="stylesheet" href="dashboard.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        .comments-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+
+        .comment-card {
+            background: #fff;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(139, 92, 246, 0.07);
+            transition: all 0.3s ease;
+        }
+
+        .comment-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.12);
+        }
+
+        .blog-preview {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #ede9fe;
+        }
+
+        .blog-thumbnail {
+            width: 200px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 0.8rem;
+        }
+
+        .blog-info {
+            flex: 1;
+        }
+
+        .blog-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #18181b;
+            margin-bottom: 0.5rem;
+            text-decoration: none;
+            display: block;
+        }
+
+        .blog-title:hover {
+            color: #7c3aed;
+        }
+
+        .blog-meta {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .comment-content {
+            background: #f8f5ff;
+            padding: 1rem;
+            border-radius: 0.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .comment-text {
+            color: #374151;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .comment-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .comment-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 0.4rem;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn:hover {
+            background: #ede9fe;
+            color: #7c3aed;
+        }
+
+        .no-comments {
+            text-align: center;
+            color: #6b7280;
+            padding: 3rem;
+            background: #fff;
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px rgba(139, 92, 246, 0.07);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <img src="Preview.png" alt="Quickblog Logo" class="sidebar-logo-img" />
+                <span class="sidebar-logo-text">Miniblog</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="sidebar-link"><i class="fas fa-th-large"></i> Dashboard</a>
+                <a href="add-blog.html" class="sidebar-link"><i class="fas fa-plus"></i> Add blogs</a>
+                <a href="blog-list.html" class="sidebar-link"><i class="fas fa-list"></i> Blog lists</a>
+                <a href="comments.html" class="sidebar-link active"><i class="far fa-comments"></i> Comments</a>
+            </nav>
+        </aside>
+        <main class="dashboard-main">
+            <header class="dashboard-header">
+                <div class="header-spacer"></div>
+                <div class="header-profile" id="headerProfile">
+                    <div class="header-avatar" id="headerAvatar"></div>
+                    <div class="header-username" id="headerUsername"></div>
+                </div>
+            </header>
+            <section class="comments-container" id="commentsContainer">
+                <!-- Comments will be loaded here -->
+            </section>
+        </main>
+    </div>
+    <script>
+        // Get all comments with blog details
+        async function loadAllComments() {
+            const container = document.getElementById('commentsContainer');
+            try {
+                // First get all blogs
+                const blogsRes = await fetch('/api/blogs');
+                const blogs = await blogsRes.json();
+
+                if (!Array.isArray(blogs) || blogs.length === 0) {
+                    container.innerHTML = '<div class="no-comments">No blogs found.</div>';
+                    return;
+                }
+
+                let allComments = [];
+
+                // Get comments for each blog
+                for (const blog of blogs) {
+                    const commentsRes = await fetch(`/api/blogs/${blog.id}/comments`);
+                    const comments = await commentsRes.json();
+
+                    comments.forEach(comment => {
+                        allComments.push({
+                            ...comment,
+                            blogId: blog.id,
+                            blogTitle: blog.title,
+                            blogThumbnail: blog.thumbnail,
+                            blogDate: blog.createdAt
+                        });
+                    });
+                }
+
+                // Sort comments by date (newest first)
+                allComments.sort((a, b) => {
+                    const dateA = a.createdAt?._seconds || 0;
+                    const dateB = b.createdAt?._seconds || 0;
+                    return dateB - dateA;
+                });
+
+                if (allComments.length === 0) {
+                    container.innerHTML = '<div class="no-comments">No comments yet.</div>';
+                    return;
+                }
+
+                // Render comments
+                container.innerHTML = allComments.map(comment => `
+                    <div class="comment-card">
+                        <div class="blog-preview">
+                            ${comment.blogThumbnail ?
+                        `<img src="${comment.blogThumbnail}" alt="${comment.blogTitle}" class="blog-thumbnail">`
+                        : ''}
+                            <div class="blog-info">
+                                <a href="blog.html?id=${comment.blogId}" class="blog-title">${comment.blogTitle}</a>
+                                <div class="blog-meta">
+                                    ${comment.blogDate ? new Date(comment.blogDate._seconds * 1000).toLocaleDateString() : ''}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="comment-content">
+                            <p class="comment-text">${comment.text}</p>
+                        </div>
+                        <div class="comment-meta">
+                            <span>${new Date(comment.createdAt._seconds * 1000).toLocaleString()}</span>
+                            <div class="comment-actions">
+                                <button class="action-btn" onclick="deleteComment('${comment.blogId}', '${comment.id}')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (err) {
+                container.innerHTML = '<div class="no-comments">Failed to load comments.</div>';
+            }
+        }
+
+        // Delete comment
+        async function deleteComment(blogId, commentId) {
+            if (!confirm('Are you sure you want to delete this comment?')) return;
+
+            try {
+                const res = await fetch(`/api/blogs/${blogId}/comments/${commentId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    alert('Comment deleted successfully');
+                    loadAllComments(); // Reload comments
+                } else {
+                    const error = await res.json();
+                    alert(error.error || 'Failed to delete comment');
+                }
+            } catch (err) {
+                console.error('Error deleting comment:', err);
+                alert('Failed to delete comment. Please try again.');
+            }
+        }
+
+        // User profile logic
+        function getUser() {
+            return JSON.parse(localStorage.getItem('user') || '{"name":"User"}');
+        }
+
+        function renderHeaderProfile() {
+            const user = getUser();
+            const avatarDiv = document.getElementById('headerAvatar');
+            const nameDiv = document.getElementById('headerUsername');
+            if (user.profilePhoto) {
+                avatarDiv.innerHTML = `<img src="${user.profilePhoto}" alt="Avatar" />`;
+            } else {
+                avatarDiv.innerHTML = `<span class="default-avatar">${user.name ? user.name.charAt(0).toUpperCase() : 'U'}</span>`;
+            }
+            nameDiv.textContent = user.name || 'User';
+        }
+
+        renderHeaderProfile();
+        loadAllComments();
+    </script>
+</body>
+
+</html>

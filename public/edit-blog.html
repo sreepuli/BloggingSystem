@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edit Blog - Miniblog</title>
+    <link rel="stylesheet" href="dashboard.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <img src="Preview.png" alt="Quickblog Logo" class="sidebar-logo-img" />
+                <span class="sidebar-logo-text">Miniblog</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="sidebar-link"><i class="fas fa-th-large"></i> Dashboard</a>
+                <a href="add-blog.html" class="sidebar-link"><i class="fas fa-plus"></i> Add blogs</a>
+                <a href="blog-list.html" class="sidebar-link"><i class="fas fa-list"></i> Blog lists</a>
+                <a href="#" class="sidebar-link"><i class="far fa-comments"></i> Comments</a>
+            </nav>
+        </aside>
+        <main class="dashboard-main">
+            <header class="dashboard-header">
+                <button class="logout-btn">Logout</button>
+            </header>
+            <section class="add-blog-section">
+                <form class="add-blog-form" id="editBlogForm">
+                    <label class="form-label">Upload thumbnail</label>
+                    <div class="upload-box" id="uploadBox">
+                        <input type="file" id="blogImage" accept="image/*" hidden />
+                        <label for="blogImage" class="upload-label">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Upload</span>
+                        </label>
+                        <img id="previewImg" class="preview-img" style="display:none;" />
+                    </div>
+
+                    <label class="form-label" for="blogTitle">Blog title</label>
+                    <input type="text" id="blogTitle" class="form-input" placeholder="Enter blog title" maxlength="100"
+                        required />
+
+                    <label class="form-label" for="blogCategory">Blog category</label>
+                    <select id="blogCategory" class="form-input">
+                        <option value="" selected disabled>Select category</option>
+                        <option value="Technology">Technology</option>
+                        <option value="Startup">Startup</option>
+                        <option value="Lifestyle">Lifestyle</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Travel">Travel</option>
+                        <option value="Food">Food</option>
+                        <option value="Education">Education</option>
+                        <option value="Other">Other</option>
+                    </select>
+
+                    <label class="form-label">Blog Content</label>
+                    <div id="blogContent" class="form-input desc-input contenteditable" contenteditable="true"
+                        placeholder="Write your blog content here..." spellcheck="true"></div>
+                    <div class="char-count" id="charCount">0 / 2000 characters</div>
+
+                    <button type="submit" class="publish-btn">Update Blog</button>
+                    <div id="message" class="message"></div>
+                </form>
+            </section>
+        </main>
+    </div>
+    <script>
+        // Get blog ID from URL
+        function getBlogId() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('id');
+        }
+        // Fetch and populate blog data
+        async function loadBlog() {
+            const blogId = getBlogId();
+            if (!blogId) return;
+            try {
+                const res = await fetch(`/api/blogs/${blogId}`);
+                if (!res.ok) throw new Error('Not found');
+                const blog = await res.json();
+                document.getElementById('blogTitle').value = blog.title || '';
+                document.getElementById('blogCategory').value = blog.category || '';
+                document.getElementById('blogContent').innerHTML = blog.content || '';
+                if (blog.thumbnail) {
+                    const previewImg = document.getElementById('previewImg');
+                    previewImg.src = blog.thumbnail;
+                    previewImg.style.display = 'block';
+                }
+            } catch (err) {
+                document.getElementById('message').textContent = 'Failed to load blog.';
+            }
+        }
+        loadBlog();
+        // Image preview
+        const blogImage = document.getElementById('blogImage');
+        const previewImg = document.getElementById('previewImg');
+        blogImage.addEventListener('change', function () {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    previewImg.src = e.target.result;
+                    previewImg.style.display = 'block';
+                };
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+        // Character count
+        const blogContent = document.getElementById('blogContent');
+        blogContent.addEventListener('input', function () {
+            const text = blogContent.innerText || '';
+            document.getElementById('charCount').textContent = text.length + ' / 2000 characters';
+        });
+        // Submit update
+        const editBlogForm = document.getElementById('editBlogForm');
+        editBlogForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const blogId = getBlogId();
+            const title = document.getElementById('blogTitle').value.trim();
+            const category = document.getElementById('blogCategory').value;
+            const content = blogContent.innerHTML;
+            let thumbnail = '';
+            if (previewImg && previewImg.src && previewImg.style.display !== 'none') {
+                thumbnail = previewImg.src;
+            }
+            if (!title || !category || !content) {
+                document.getElementById('message').textContent = 'Please fill all required fields.';
+                return;
+            }
+            try {
+                const res = await fetch(`/api/blogs/${blogId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, category, content, thumbnail })
+                });
+                if (res.ok) {
+                    window.location.href = 'blog-list.html';
+                } else {
+                    document.getElementById('message').textContent = 'Failed to update blog.';
+                }
+            } catch (err) {
+                document.getElementById('message').textContent = 'Failed to update blog.';
+            }
+        });
+    </script>
+</body>
+
+</html>

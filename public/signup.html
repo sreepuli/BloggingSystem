@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign Up - Miniblog</title>
+  <link rel="stylesheet" href="auth.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+
+<body>
+  <header class="main-header">
+    <nav class="logo-nav">
+      <div class="nav-left">
+        <a href="index.html" class="logo-link">
+          <img src="Preview.png" alt="Mini Blog Logo" class="logo-img" />
+          <span class="logo-text">Miniblog</span>
+        </a>
+      </div>
+      <div class="nav-right">
+        <a href="login.html" class="login-btn">Login</a>
+        <a href="signup.html" class="signup-btn active">Sign Up</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="auth-container">
+    <div class="auth-card">
+      <h2 class="auth-title">Create Your Account</h2>
+      <p class="auth-subtitle">Join Miniblog to read, write and share your thoughts with the world.</p>
+
+      <form class="auth-form" id="signupForm">
+        <div class="form-group">
+          <label for="fullname">Full Name</label>
+          <input type="text" id="fullname" class="form-input" placeholder="Enter your full name" required />
+        </div>
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" class="form-input" placeholder="Enter your email" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="password-wrapper">
+            <input type="password" id="signup-password" class="form-input" placeholder="Create a password" required />
+            <button type="button" class="toggle-password" aria-label="Show password" tabindex="0"><i
+                class="fas fa-eye"></i></button>
+          </div>
+        </div>
+        <div class="form-group">
+          <button type="submit" class="auth-button">Sign Up</button>
+        </div>
+      </form>
+
+      <p class="auth-footer">
+        Already have an account? <a href="login.html" class="auth-link">Login here</a>
+      </p>
+    </div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

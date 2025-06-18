@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blog Detail - Miniblog</title>
+    <link rel="stylesheet" href="dashboard.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        .blog-detail {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: #fff;
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px rgba(139, 92, 246, 0.07);
+        }
+
+        .blog-thumbnail {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .blog-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #18181b;
+            margin-bottom: 1rem;
+        }
+
+        .blog-meta {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            color: #6b7280;
+        }
+
+        .blog-category {
+            background: #ede9fe;
+            color: #7c3aed;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .blog-date {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .blog-content {
+            color: #374151;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 3rem;
+        }
+
+        .blog-content p {
+            margin-bottom: 1.5rem;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #7c3aed;
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 2rem;
+            transition: all 0.2s ease;
+        }
+
+        .back-btn:hover {
+            color: #6d28d9;
+            transform: translateX(-4px);
+        }
+
+        /* Comments Section Styles */
+        .comments-section {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #ede9fe;
+        }
+
+        .comments-section h2 {
+            font-size: 1.5rem;
+            color: #18181b;
+            margin-bottom: 1.5rem;
+        }
+
+        .comment-form {
+            margin-bottom: 2rem;
+        }
+
+        .comment-input {
+            width: 100%;
+            min-height: 100px;
+            padding: 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.8rem;
+            margin-bottom: 1rem;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            transition: all 0.2s ease;
+        }
+
+        .comment-input:focus {
+            outline: none;
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }
+
+        .comment-submit {
+            background: #7c3aed;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .comment-submit:hover {
+            background: #6d28d9;
+            transform: translateY(-1px);
+        }
+
+        .comments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .comment-card {
+            background: #f8f5ff;
+            padding: 1.5rem;
+            border-radius: 0.8rem;
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .comment-author {
+            font-weight: 500;
+            color: #18181b;
+        }
+
+        .comment-date {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .comment-text {
+            color: #374151;
+            line-height: 1.6;
+        }
+
+        .no-comments {
+            text-align: center;
+            color: #6b7280;
+            padding: 2rem;
+            background: #f8f5ff;
+            border-radius: 0.8rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <img src="Preview.png" alt="Quickblog Logo" class="sidebar-logo-img" />
+                <span class="sidebar-logo-text">Miniblog</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="sidebar-link"><i class="fas fa-th-large"></i> Dashboard</a>
+                <a href="add-blog.html" class="sidebar-link"><i class="fas fa-plus"></i> Add blogs</a>
+                <a href="blog-list.html" class="sidebar-link"><i class="fas fa-list"></i> Blog lists</a>
+                <a href="comments.html" class="sidebar-link"><i class="far fa-comments"></i> Comments</a>
+            </nav>
+        </aside>
+        <main class="dashboard-main">
+            <header class="dashboard-header">
+                <div class="header-spacer"></div>
+                <div class="header-profile" id="headerProfile">
+                    <div class="header-avatar" id="headerAvatar"></div>
+                    <div class="header-username" id="headerUsername"></div>
+                </div>
+            </header>
+            <div class="blog-detail" id="blogDetail">
+                <a href="blog-list.html" class="back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Blogs
+                </a>
+                <!-- Blog content will be loaded here -->
+            </div>
+        </main>
+    </div>
+    <script>
+        // Get blog ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const blogId = urlParams.get('id');
+
+        // Get user from localStorage
+        function getUser() {
+            return JSON.parse(localStorage.getItem('user') || '{"name":"User"}');
+        }
+
+        // Render header profile
+        function renderHeaderProfile() {
+            const user = getUser();
+            const avatarDiv = document.getElementById('headerAvatar');
+            const nameDiv = document.getElementById('headerUsername');
+            if (user.profilePhoto) {
+                avatarDiv.innerHTML = `<img src="${user.profilePhoto}" alt="Avatar" />`;
+            } else {
+                avatarDiv.innerHTML = `<span class="default-avatar">${user.name ? user.name.charAt(0).toUpperCase() : 'U'}</span>`;
+            }
+            nameDiv.textContent = user.name || 'User';
+        }
+
+        // Load blog content
+        async function loadBlog() {
+            const container = document.getElementById('blogDetail');
+            try {
+                const res = await fetch(`/api/blogs/${blogId}`);
+                const blog = await res.json();
+
+                // Update page title
+                document.title = `${blog.title} - Miniblog`;
+
+                // Render blog content
+                container.innerHTML = `
+                    <a href="blog-list.html" class="back-btn">
+                        <i class="fas fa-arrow-left"></i> Back to Blogs
+                    </a>
+                    ${blog.thumbnail ? `<img src="${blog.thumbnail}" alt="${blog.title}" class="blog-thumbnail">` : ''}
+                    <h1 class="blog-title">${blog.title}</h1>
+                    <div class="blog-meta">
+                        <span class="blog-category">${blog.category}</span>
+                        <span class="blog-date">
+                            <i class="far fa-calendar"></i>
+                            ${new Date(blog.createdAt._seconds * 1000).toLocaleDateString()}
+                        </span>
+                    </div>
+                    <div class="blog-content">
+                        ${blog.content}
+                    </div>
+                    <div class="comments-section">
+                        <h2>Comments</h2>
+                        <div class="comment-form">
+                            <textarea class="comment-input" placeholder="Write your comment..." id="commentInput"></textarea>
+                            <button class="comment-submit" onclick="submitComment()">Post Comment</button>
+                        </div>
+                        <div class="comments-list" id="commentsList">
+                            <!-- Comments will be loaded here -->
+                        </div>
+                    </div>
+                `;
+
+                // Load comments
+                loadComments();
+            } catch (err) {
+                container.innerHTML = '<div class="error">Failed to load blog</div>';
+            }
+        }
+
+        // Load comments
+        async function loadComments() {
+            const container = document.getElementById('commentsList');
+            try {
+                const res = await fetch(`/api/blogs/${blogId}/comments`);
+                const comments = await res.json();
+
+                if (comments.length === 0) {
+                    container.innerHTML = '<div class="no-comments">No comments yet. Be the first to comment!</div>';
+                    return;
+                }
+
+                // Sort comments by date (newest first)
+                comments.sort((a, b) => {
+                    const dateA = a.createdAt?._seconds || 0;
+                    const dateB = b.createdAt?._seconds || 0;
+                    return dateB - dateA;
+                });
+
+                container.innerHTML = comments.map(comment => `
+                    <div class="comment-card">
+                        <div class="comment-header">
+                            <span class="comment-author">${comment.author || 'Anonymous'}</span>
+                            <span class="comment-date">${new Date(comment.createdAt._seconds * 1000).toLocaleString()}</span>
+                        </div>
+                        <p class="comment-text">${comment.text}</p>
+                    </div>
+                `).join('');
+            } catch (err) {
+                container.innerHTML = '<div class="error">Failed to load comments</div>';
+            }
+        }
+
+        // Submit comment
+        async function submitComment() {
+            const input = document.getElementById('commentInput');
+            const text = input.value.trim();
+
+            if (!text) {
+                alert('Please enter a comment');
+                return;
+            }
+
+            const user = getUser();
+
+            try {
+                const res = await fetch(`/api/blogs/${blogId}/comments`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        text,
+                        author: user.name || 'Anonymous'
+                    })
+                });
+
+                if (res.ok) {
+                    input.value = '';
+                    loadComments(); // Reload comments
+                } else {
+                    alert('Failed to post comment');
+                }
+            } catch (err) {
+                alert('Failed to post comment');
+            }
+        }
+
+        renderHeaderProfile();
+        loadBlog();
+    </script>
+</body>
+
+</html>

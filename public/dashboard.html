@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Miniblog</title>
+    <link rel="stylesheet" href="dashboard.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <img src="Preview.png" alt="Quickblog Logo" class="sidebar-logo-img" />
+                <span class="sidebar-logo-text">Miniblog</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="sidebar-link active"><i class="fas fa-th-large"></i> Dashboard</a>
+                <a href="add-blog.html" class="sidebar-link"><i class="fas fa-plus"></i> Add blogs</a>
+                <a href="blog-list.html" class="sidebar-link"><i class="fas fa-list"></i> Blog lists</a>
+                <a href="#" class="sidebar-link"><i class="far fa-comments"></i> Comments</a>
+            </nav>
+        </aside>
+        <main class="dashboard-main">
+            <header class="dashboard-header">
+                <div class="header-spacer"></div>
+                <div class="header-profile" id="headerProfile">
+                    <div class="header-avatar" id="headerAvatar"></div>
+                    <div class="header-username" id="headerUsername"></div>
+                </div>
+            </header>
+            <section class="dashboard-stats">
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-blogs"><i class="far fa-calendar-alt"></i></div>
+                    <div>
+                        <div class="stat-value" id="blogCount">10</div>
+                        <div class="stat-label">Blogs</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-comments"><i class="far fa-comments"></i></div>
+                    <div>
+                        <div class="stat-value">2</div>
+                        <div class="stat-label">Comments</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-drafts"><i class="far fa-edit"></i></div>
+                    <div>
+                        <div class="stat-value">0</div>
+                        <div class="stat-label">Drafts</div>
+                    </div>
+                </div>
+            </section>
+            <section class="dashboard-blogs">
+                <div class="blogs-header">
+                    <i class="fas fa-stream"></i>
+                    <span>Latest Blogs</span>
+                </div>
+                <table class="blogs-table" id="blogsTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>BLOG TITLE</th>
+                            <th>DATE</th>
+                            <th>CATEGORY</th>
+                            <th>STATUS</th>
+                            <th>ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="blogsTableBody">
+                        <!-- Blogs will be inserted here by JS -->
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+    <!-- Profile Modal -->
+    <div class="profile-modal" id="profileModal">
+        <div class="profile-modal-content">
+            <span class="close-modal" id="closeProfileModal">&times;</span>
+            <div class="profile-modal-avatar" id="modalAvatar"></div>
+            <div class="profile-modal-name" id="modalName"></div>
+            <div class="profile-modal-email" id="modalEmail"></div>
+            <form id="editProfileForm">
+                <label>Change Photo
+                    <input type="file" id="editProfilePhoto" accept="image/*" style="display:none;" />
+                </label>
+                <button type="button" id="triggerPhotoUpload">Upload New Photo</button>
+                <input type="text" id="editName" placeholder="Edit name" />
+                <input type="email" id="editEmail" placeholder="Edit email" />
+                <button type="submit">Save Changes</button>
+            </form>
+            <button id="logoutBtnModal" class="logout-btn">Logout</button>
+        </div>
+    </div>
+    <script>
+        window.addEventListener('DOMContentLoaded', async function () {
+            const tbody = document.getElementById('blogsTableBody');
+            tbody.innerHTML = '';
+            try {
+                const res = await fetch('/api/blogs');
+                const blogs = await res.json();
+                if (!Array.isArray(blogs) || blogs.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#888;">No blogs found. Add a blog to see it here.</td></tr>';
+                    document.getElementById('blogCount').textContent = 0;
+                    return;
+                }
+                blogs.slice(0, 5).forEach((blog, i) => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                    <td>${i + 1}</td>
+                    <td>${blog.title}</td>
+                    <td>${blog.date || (blog.createdAt && blog.createdAt._seconds ? new Date(blog.createdAt._seconds * 1000).toDateString() : '')}</td>
+                    <td>${blog.category || ''}</td>
+                    <td class="status-published">Published</td>
+                    <td><button class="unpublish-btn" disabled>Unpublish</button> <button class="delete-btn" data-id="${blog.id}"><i class="fas fa-times"></i></button></td>
+                `;
+                    tbody.appendChild(tr);
+                });
+                // Delete blog
+                tbody.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', async function () {
+                        const id = this.getAttribute('data-id');
+                        try {
+                            const res = await fetch(`/api/blogs/${id}`, { method: 'DELETE' });
+                            if (res.ok) {
+                                window.location.reload();
+                            } else {
+                                alert('Failed to delete blog');
+                            }
+                        } catch (err) {
+                            alert('Failed to delete blog');
+                        }
+                    });
+                });
+                // Update blog count
+                document.getElementById('blogCount').textContent = blogs.length;
+            } catch (err) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#888;">Failed to load blogs.</td></tr>';
+                document.getElementById('blogCount').textContent = 0;
+            }
+        });
+        // User profile logic
+        function getUser() {
+            return JSON.parse(localStorage.getItem('user') || '{"name":"User"}');
+        }
+        function setUser(user) {
+            localStorage.setItem('user', JSON.stringify(user));
+        }
+        function renderHeaderProfile() {
+            const user = getUser();
+            const avatarDiv = document.getElementById('headerAvatar');
+            const nameDiv = document.getElementById('headerUsername');
+            if (user.profilePhoto) {
+                avatarDiv.innerHTML = `<img src="${user.profilePhoto}" alt="Avatar" />`;
+            } else {
+                avatarDiv.innerHTML = `<span class="default-avatar">${user.name ? user.name.charAt(0).toUpperCase() : 'U'}</span>`;
+            }
+            nameDiv.textContent = user.name || 'User';
+        }
+        function renderProfileModal() {
+            const user = getUser();
+            const modalAvatar = document.getElementById('modalAvatar');
+            const modalName = document.getElementById('modalName');
+            const modalEmail = document.getElementById('modalEmail');
+            if (user.profilePhoto) {
+                modalAvatar.innerHTML = `<img src="${user.profilePhoto}" alt="Avatar" />`;
+            } else {
+                modalAvatar.innerHTML = `<span class="default-avatar">${user.name ? user.name.charAt(0).toUpperCase() : 'U'}</span>`;
+            }
+            modalName.textContent = user.name || 'User';
+            modalEmail.textContent = user.email || '';
+            document.getElementById('editName').value = user.name || '';
+            document.getElementById('editEmail').value = user.email || '';
+        }
+        document.getElementById('headerProfile').onclick = function () {
+            renderProfileModal();
+            document.getElementById('profileModal').style.display = 'flex';
+        };
+        document.getElementById('closeProfileModal').onclick = function () {
+            document.getElementById('profileModal').style.display = 'none';
+        };
+        document.getElementById('triggerPhotoUpload').onclick = function (e) {
+            e.preventDefault();
+            document.getElementById('editProfilePhoto').click();
+        };
+        document.getElementById('editProfilePhoto').onchange = function () {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const user = getUser();
+                    user.profilePhoto = e.target.result;
+                    setUser(user);
+                    renderProfileModal();
+                    renderHeaderProfile();
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+        document.getElementById('editProfileForm').onsubmit = function (e) {
+            e.preventDefault();
+            const user = getUser();
+            user.name = document.getElementById('editName').value;
+            user.email = document.getElementById('editEmail').value;
+            setUser(user);
+            renderProfileModal();
+            renderHeaderProfile();
+            document.getElementById('profileModal').style.display = 'none';
+        };
+        document.getElementById('logoutBtnModal').onclick = function () {
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        };
+        renderHeaderProfile();
+    </script>
+</body>
+
+</html>

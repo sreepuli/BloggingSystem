@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blog List - Miniblog</title>
+    <link rel="stylesheet" href="dashboard.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <img src="Preview.png" alt="Quickblog Logo" class="sidebar-logo-img" />
+                <span class="sidebar-logo-text">Miniblog</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="sidebar-link"><i class="fas fa-th-large"></i> Dashboard</a>
+                <a href="add-blog.html" class="sidebar-link"><i class="fas fa-plus"></i> Add blogs</a>
+                <a href="blog-list.html" class="sidebar-link active"><i class="fas fa-list"></i> Blog lists</a>
+            </nav>
+        </aside>
+        <main class="dashboard-main">
+            <header class="dashboard-header">
+                <div class="header-spacer"></div>
+                <div class="header-profile" id="headerProfile">
+                    <div class="header-avatar" id="headerAvatar"></div>
+                    <div class="header-username" id="headerUsername"></div>
+                </div>
+            </header>
+            <section class="dashboard-blogs">
+                <div class="blogs-header">
+                    <i class="fas fa-stream"></i>
+                    <span>All Blogs</span>
+                </div>
+                <table class="blogs-table" id="blogsTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>BLOG TITLE</th>
+                            <th>DATE</th>
+                            <th>CATEGORY</th>
+                            <th>STATUS</th>
+                            <th>ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="blogsTableBody">
+                        <!-- Blogs will be inserted here by JS -->
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+    <script>
+        window.addEventListener('DOMContentLoaded', async function () {
+            const tbody = document.getElementById('blogsTableBody');
+            tbody.innerHTML = '';
+            try {
+                const res = await fetch('/api/blogs');
+                const blogs = await res.json();
+                if (!Array.isArray(blogs) || blogs.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#888;">No blogs found. Add a blog to see it here.</td></tr>';
+                    return;
+                }
+                blogs.forEach((blog, i) => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                    <td>${i + 1}</td>
+                    <td><a href="blog.html?id=${blog.id}" class="blog-title-link">${blog.title}</a></td>
+                    <td>${blog.date || (blog.createdAt && blog.createdAt._seconds ? new Date(blog.createdAt._seconds * 1000).toDateString() : '')}</td>
+                    <td>${blog.category || ''}</td>
+                    <td class="status-published">Published</td>
+                    <td><button class="unpublish-btn" disabled>Unpublish</button> <button class="delete-btn" data-id="${blog.id}"><i class="fas fa-times"></i></button> <a href="edit-blog.html?id=${blog.id}" class="edit-btn" title="Edit"><i class="fas fa-edit"></i></a></td>
+                `;
+                    tbody.appendChild(tr);
+                });
+                // Delete blog
+                tbody.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', async function () {
+                        const id = this.getAttribute('data-id');
+                        try {
+                            const res = await fetch(`/api/blogs/${id}`, { method: 'DELETE' });
+                            if (res.ok) {
+                                window.location.reload();
+                            } else {
+                                alert('Failed to delete blog');
+                            }
+                        } catch (err) {
+                            alert('Failed to delete blog');
+                        }
+                    });
+                });
+            } catch (err) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#888;">Failed to load blogs.</td></tr>';
+            }
+        });
+
+        // User profile logic
+        function getUser() {
+            return JSON.parse(localStorage.getItem('user') || '{"name":"User"}');
+        }
+
+        function renderHeaderProfile() {
+            const user = getUser();
+            const avatarDiv = document.getElementById('headerAvatar');
+            const nameDiv = document.getElementById('headerUsername');
+            if (user.profilePhoto) {
+                avatarDiv.innerHTML = `<img src="${user.profilePhoto}" alt="Avatar" />`;
+            } else {
+                avatarDiv.innerHTML = `<span class="default-avatar">${user.name ? user.name.charAt(0).toUpperCase() : 'U'}</span>`;
+            }
+            nameDiv.textContent = user.name || 'User';
+        }
+        renderHeaderProfile();
+
+        // Function to show blog preview
+        function showBlogPreview(blog) {
+            const modal = document.createElement('div');
+            modal.className = 'preview-modal';
+            modal.innerHTML = `
+                <div class="preview-modal-content">
+                    <span class="close-modal">&times;</span>
+                    <h2>${blog.title}</h2>
+                    <p>${blog.content}</p>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            modal.querySelector('.close-modal').onclick = function () {
+                modal.remove();
+            };
+        }
+    </script>
+</body>
+
+</html>
